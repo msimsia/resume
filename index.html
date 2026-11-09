@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>胡森 · Agent 开发工程师</title>
+<meta name="description" content="胡森 - Agent 开发工程师 / AI 应用开发，专注 LangGraph 多智能体、RAG 与企业级 AI 工程化落地。" />
+<style>
+:root{
+  --bg:#070b14;
+  --bg-soft:#0c1220;
+  --card:rgba(255,255,255,.045);
+  --card-hover:rgba(255,255,255,.075);
+  --line:rgba(255,255,255,.09);
+  --text:#e8ecf6;
+  --text-dim:#9aa7bd;
+  --text-dim2:#6f7d95;
+  --primary:#6c8cff;
+  --primary-2:#a78bfa;
+  --cyan:#22d3ee;
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:"HarmonyOS Sans SC","PingFang SC","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* ===== 背景光效 ===== */
+.bg-fx{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+.bg-fx .grid{
+  position:absolute;inset:-2px;
+  background-image:linear-gradient(rgba(108,140,255,.055) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(108,140,255,.055) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(circle at 50% 0%,#000 0%,transparent 78%);
+  -webkit-mask-image:radial-gradient(circle at 50% 0%,#000 0%,transparent 78%);
+}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5}
+.orb.a{width:620px;height:620px;background:rgba(108,140,255,.42);top:-240px;left:-140px}
+.orb.b{width:520px;height:520px;background:rgba(167,139,250,.30);top:100px;right:-160px}
+.orb.c{width:460px;height:460px;background:rgba(34,211,238,.16);top:1100px;left:-160px}
+
+/* ===== 导航 ===== */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  background:rgba(7,11,20,.62);
+  border-bottom:1px solid transparent;
+  transition:.3s;
+}
+header.scrolled{border-bottom-color:var(--line);background:rgba(7,11,20,.86)}
+.nav{
+  max-width:1120px;margin:0 auto;padding:15px 26px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+}
+.logo{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.5px;font-size:17px}
+.logo .dot{
+  width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  color:#fff;font-size:15px;box-shadow:0 6px 20px rgba(108,140,255,.4);
+}
+.nav-links{display:flex;gap:6px}
+.nav-links a{
+  color:var(--text-dim);text-decoration:none;font-size:14.5px;
+  padding:7px 13px;border-radius:9px;transition:.22s;white-space:nowrap;
+}
+.nav-links a:hover{color:var(--text);background:var(--card-hover)}
+.nav-links a.active{color:#fff;background:rgba(108,140,255,.18)}
+
+/* ===== 通用容器 ===== */
+main{max-width:1120px;margin:0 auto;padding:0 26px}
+section{padding:86px 0 10px}
+.sec-head{margin-bottom:34px}
+.sec-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12.5px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--primary);font-weight:600;margin-bottom:12px;
+}
+.sec-tag::before{content:"";width:22px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--primary),var(--primary-2))}
+h2{font-size:clamp(24px,3vw,32px);font-weight:700;letter-spacing:.5px}
+.sec-desc{color:var(--text-dim);font-size:15px;margin-top:8px}
+
+/* ===== Hero ===== */
+.hero{padding-top:150px;padding-bottom:70px;position:relative}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:7px 15px;border-radius:999px;font-size:13.5px;color:#b9c6e6;
+  background:rgba(108,140,255,.10);border:1px solid rgba(108,140,255,.28);
+  margin-bottom:24px;
+}
+.pulse{width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+h1{
+  font-size:clamp(42px,7vw,74px);line-height:1.1;font-weight:800;letter-spacing:-1px;
+  background:linear-gradient(120deg,#fff 10%,#cfd9ff 45%,#a78bfa 85%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero-sub{
+  font-size:clamp(17px,2.1vw,21px);color:#b9c6e6;margin-top:16px;font-weight:500;
+}
+.hero-desc{color:var(--text-dim);max-width:720px;margin-top:20px;font-size:15.5px}
+.hero-tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:26px;max-width:780px}
+.chip{
+  font-size:13px;padding:6px 13px;border-radius:999px;color:#c7d2fe;
+  background:rgba(255,255,255,.04);border:1px solid var(--line);
+}
+.chip.hi{color:#e0e7ff;background:rgba(108,140,255,.14);border-color:rgba(108,140,255,.36)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:13px;margin-top:34px}
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:12px 24px;border-radius:12px;text-decoration:none;font-size:15px;font-weight:600;
+  transition:.24s;border:1px solid transparent;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;
+  box-shadow:0 10px 28px rgba(108,140,255,.32);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(108,140,255,.45)}
+.btn-ghost{color:var(--text);background:var(--card);border-color:var(--line)}
+.btn-ghost:hover{background:var(--card-hover);border-color:rgba(108,140,255,.4);transform:translateY(-2px)}
+
+.stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:56px;
+}
+.stat{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px 18px;transition:.28s;
+}
+.stat:hover{background:var(--card-hover);transform:translateY(-3px);border-color:rgba(108,140,255,.32)}
+.stat .num{
+  font-size:30px;font-weight:800;letter-spacing:-.5px;
+  background:linear-gradient(120deg,#fff,#8fa6ff);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.stat .lbl{font-size:13.5px;color:var(--text-dim2);margin-top:4px}
+
+/* ===== 技能 ===== */
+.skill-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.skill-card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:26px 24px;position:relative;overflow:hidden;transition:.3s;
+}
+.skill-card::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--primary),var(--primary-2),transparent);
+  opacity:0;transition:.3s;
+}
+.skill-card:hover{background:var(--card-hover);transform:translateY(-4px);border-color:rgba(108,140,255,.3)}
+.skill-card:hover::before{opacity:1}
+.skill-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.skill-ico{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;
+  background:rgba(108,140,255,.12);border:1px solid rgba(108,140,255,.26);flex:none;
+}
+.skill-card h3{font-size:16.5px;font-weight:700}
+.skill-card p{font-size:14.3px;color:var(--text-dim);line-height:1.8}
+.skill-card .kws{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.kw{
+  font-size:12px;padding:3.5px 10px;border-radius:7px;
+  color:#a9b9de;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
+}
+
+/* ===== 时间线 ===== */
+.timeline{position:relative;padding-left:30px}
+.timeline::before{
+  content:"";position:absolute;left:7px;top:8px;bottom:8px;width:2px;
+  background:linear-gradient(180deg,var(--primary),rgba(167,139,250,.35),transparent);
+}
+.tl-item{position:relative;padding-bottom:34px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{
+  content:"";position:absolute;left:-30px;top:9px;width:16px;height:16px;border-radius:50%;
+  background:var(--bg-soft);border:2px solid var(--primary);box-shadow:0 0 0 4px rgba(108,140,255,.10);
+}
+.tl-item:not(:first-child)::before{border-color:#5f6f92;box-shadow:none}
+.tl-card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:24px 24px 22px;transition:.28s;
+}
+.tl-card:hover{background:var(--card-hover);border-color:rgba(108,140,255,.28)}
+.tl-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 14px;margin-bottom:6px}
+.tl-role{font-size:17px;font-weight:700}
+.tl-company{font-size:14.5px;color:#9db3ff}
+.tl-date{
+  font-size:12.5px;color:var(--text-dim2);margin-left:auto;
+  padding:3px 11px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid var(--line);
+}
+.tl-card ul{list-style:none;margin-top:12px}
+.tl-card li,.proj-body li{position:relative;padding-left:17px;font-size:14.3px;color:var(--text-dim);margin-bottom:8px}
+.tl-card li::before,.proj-body li::before{
+  content:"";position:absolute;left:2px;top:10px;width:5px;height:5px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+}
+
+/* ===== 项目 ===== */
+.projects{display:grid;gap:18px}
+.proj{
+  background:var(--card);border:1px solid var(--line);border-radius:22px;
+  overflow:hidden;transition:.3s;
+}
+.proj:hover{border-color:rgba(108,140,255,.34);background:var(--card-hover)}
+.proj-top{
+  padding:26px 26px 22px;cursor:pointer;display:flex;gap:18px;align-items:flex-start;
+  user-select:none;
+}
+.proj-index{
+  font-size:13px;font-weight:800;letter-spacing:1px;flex:none;
+  width:44px;height:44px;border-radius:13px;display:grid;place-items:center;
+  color:#cfd9ff;background:linear-gradient(135deg,rgba(108,140,255,.22),rgba(167,139,250,.12));
+  border:1px solid rgba(108,140,255,.3);
+}
+.proj-main{flex:1;min-width:0}
+.proj-title{font-size:19px;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.proj-sub{font-size:13px;color:#9db3ff;font-weight:500}
+.proj-desc{font-size:14.4px;color:var(--text-dim);margin-top:10px;line-height:1.8}
+.stack{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.stack span{
+  font-size:11.8px;padding:3px 9px;border-radius:6px;color:#93c5fd;
+  background:rgba(34,211,238,.07);border:1px solid rgba(34,211,238,.16);
+}
+.proj-toggle{
+  flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  color:var(--text-dim);border:1px solid var(--line);background:rgba(255,255,255,.03);
+  transition:.3s;font-size:13px;
+}
+.proj.open .proj-toggle{transform:rotate(180deg);color:#fff;border-color:rgba(108,140,255,.45);background:rgba(108,140,255,.18)}
+.proj-body{
+  max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.4,0,.2,1);
+  padding:0 26px;
+}
+.proj.open .proj-body{max-height:1400px;padding-bottom:26px}
+.proj-body ul{list-style:none;display:grid;gap:2px;border-top:1px solid var(--line);padding-top:20px}
+.proj-body li{font-size:14.2px;line-height:1.82}
+.proj-body li b{color:#dbe3f7;font-weight:600}
+
+/* ===== 关于 / 评价 ===== */
+.about-card{
+  background:linear-gradient(140deg,rgba(108,140,255,.10),rgba(167,139,250,.05) 45%,transparent);
+  border:1px solid rgba(108,140,255,.22);border-radius:22px;padding:38px 36px;
+  position:relative;overflow:hidden;
+}
+.about-card::after{
+  content:"“";position:absolute;right:26px;top:-18px;font-size:150px;line-height:1;
+  color:rgba(167,139,250,.13);font-family:Georgia,serif;
+}
+.about-card p{font-size:15.6px;color:#c3cfe6;line-height:2;position:relative}
+.facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.fact{
+  font-size:13px;padding:7px 14px;border-radius:10px;color:#c7d2fe;
+  background:rgba(255,255,255,.045);border:1px solid var(--line);
+}
+
+/* ===== 联系 ===== */
+.contact-wrap{
+  background:var(--card);border:1px solid var(--line);border-radius:24px;
+  padding:44px 38px;text-align:center;position:relative;overflow:hidden;
+}
+.contact-wrap::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(600px 200px at 50% 0%,rgba(108,140,255,.16),transparent 70%);
+}
+.contact-wrap h2{margin-bottom:10px}
+.contact-wrap .sub{color:var(--text-dim);font-size:15px;margin-bottom:30px}
+.contacts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;position:relative}
+.contact-item{
+  background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:14px;
+  padding:20px 16px;text-decoration:none;color:var(--text);transition:.26s;
+}
+.contact-item:hover{transform:translateY(-3px);border-color:rgba(108,140,255,.4);background:rgba(108,140,255,.10)}
+.contact-item .ico{font-size:20px;margin-bottom:8px}
+.contact-item .k{font-size:12.5px;color:var(--text-dim2);letter-spacing:.5px}
+.contact-item .v{font-size:14.5px;font-weight:600;margin-top:4px;word-break:break-all}
+
+footer{
+  text-align:center;padding:56px 0 40px;color:var(--text-dim2);font-size:13px;
+  border-top:1px solid var(--line);margin-top:80px;
+}
+footer .line{color:#8fa6ff}
+
+/* ===== 动效 ===== */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ===== 响应式 ===== */
+@media (max-width:900px){
+  .skill-grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .contacts{grid-template-columns:1fr}
+  .nav-links{display:none}
+  section{padding-top:66px}
+  .hero{padding-top:120px}
+  .about-card,.contact-wrap{padding:28px 22px}
+  .proj-top{padding:22px 20px 18px;gap:13px}
+  .proj-body{padding:0 20px}
+  .proj.open .proj-body{padding-bottom:22px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+}
+@media print{
+  .reveal{opacity:1!important;transform:none!important}
+  .proj-body{max-height:none!important;padding-bottom:22px!important}
+  header{display:none}
+  body{background:#fff;color:#111}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-fx">
+  <div class="grid"></div>
+  <div class="orb a"></div>
+  <div class="orb b"></div>
+  <div class="orb c"></div>
+</div>
+
+<header id="header">
+  <div class="nav">
+    <div class="logo"><span class="dot">胡</span> 胡森 · Agent 开发工程师</div>
+    <nav class="nav-links">
+      <a href="#skills">专业技能</a>
+      <a href="#experience">工作经历</a>
+      <a href="#projects">项目经验</a>
+      <a href="#about">自我评价</a>
+      <a href="#contact">联系我</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge reveal"><span class="pulse"></span> 随时到岗 · 期望城市面议 · AI 工程化方向</div>
+    <h1 class="reveal">胡森</h1>
+    <div class="hero-sub reveal">Agent 开发工程师 / AI 应用开发</div>
+    <p class="hero-desc reveal">
+      6 年研发经验，近两年深耕大模型应用与智能体工程。擅长用 LangGraph 构建多智能体编排、Agentic RAG 检索增强与企业级 Tool 标准化体系，
+      具备把 AI 能力从方案设计一路落地到生产接口的完整工程能力。
+    </p>
+    <div class="hero-tags reveal">
+      <span class="chip hi">LangChain / LangGraph</span>
+      <span class="chip hi">多智能体编排</span>
+      <span class="chip hi">Agentic RAG</span>
+      <span class="chip">Milvus / BGE-M3</span>
+      <span class="chip">Prompt Engineering</span>
+      <span class="chip">Tool Calling</span>
+      <span class="chip">A2A / MCP</span>
+      <span class="chip">Dify</span>
+      <span class="chip">Spring Boot / Spring Cloud Alibaba</span>
+      <span class="chip">FastAPI</span>
+    </div>
+    <div class="hero-actions reveal">
+      <a class="btn btn-primary" href="#projects">查看项目经验 →</a>
+      <a class="btn btn-ghost" href="tel:18211856487">📞 18211856487</a>
+      <a class="btn btn-ghost" href="mailto:m1654589987@163.com">✉️ 发送邮件</a>
+    </div>
+
+    <div class="stats reveal">
+      <div class="stat"><div class="num">6 年</div><div class="lbl">研发经验</div></div>
+      <div class="stat"><div class="num">5 个</div><div class="lbl">AI 核心项目</div></div>
+      <div class="stat"><div class="num">Agent</div><div class="lbl">多智能体架构落地</div></div>
+      <div class="stat"><div class="num">0 → 1</div><div class="lbl">业务 AI 能力建设</div></div>
+    </div>
+  </section>
+
+  <!-- 技能 -->
+  <section id="skills">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Skills</div>
+      <h2>专业技能</h2>
+      <div class="sec-desc">从大模型应用开发到企业级后端集成，覆盖 AI 应用全链路。</div>
+    </div>
+    <div class="skill-grid">
+      <article class="skill-card reveal">
+        <div class="skill-top"><div class="skill-ico">🧠</div><h3>大模型应用开发</h3></div>
+        <p>熟练掌握 LangChain、LangGraph 等大模型应用开发技术栈，熟悉 Prompt Engineering、Tool Calling、Structured Output、Chat Memory、流式输出与大模型 API 接入等常见开发模式，具备完整 AI 应用从方案设计到接口落地的能力。</p>
+        <div class="kws"><span class="kw">LangChain</span><span class="kw">LangGraph</span><span class="kw">Tool Calling</span><span class="kw">结构化输出</span><span class="kw">流式输出</span></div>
+      </article>
+
+      <article class="skill-card reveal">
+        <div class="skill-top"><div class="skill-ico">🕸️</div><h3>多智能体架构</h3></div>
+        <p>熟悉基于 LangGraph 的状态驱动型 Agent 开发，掌握 StateGraph、State、Node、Conditional Edge、MessagesState、Checkpointer 等核心机制；具备多 Agent 职责拆分、语义意图路由、多轮上下文共享、状态持久化及流式执行实践；了解 A2A、MCP 等 Agent 服务化与工具标准化协议。</p>
+        <div class="kws"><span class="kw">StateGraph</span><span class="kw">Conditional Edge</span><span class="kw">Checkpointer</span><span class="kw">A2A</span><span class="kw">MCP</span></div>
+      </article>
+
+      <article class="skill-card reveal">
+        <div class="skill-top"><div class="skill-ico">🔍</div><h3>RAG 与检索增强</h3></div>
+        <p>熟悉 RAG 完整链路：文档解析、文本清洗、父子块切分、Embedding、向量存储、Dense/Sparse 混合检索、多路召回、融合排序及语义重排序；具备 BGE-M3、Milvus、WeightedRanker、CrossEncoder/Reranker、Redis Cache 实践，能够构建检索、精排、来源约束及 evidence gate 机制，降低无依据生成。</p>
+        <div class="kws"><span class="kw">BGE-M3</span><span class="kw">Milvus</span><span class="kw">混合检索</span><span class="kw">Reranker</span><span class="kw">evidence gate</span></div>
+      </article>
+
+      <article class="skill-card reveal">
+        <div class="skill-top"><div class="skill-ico">📝</div><h3>NLP 与模型接入</h3></div>
+        <p>熟悉 BERT 文本分类、意图识别、Embedding 向量表示及语义相似度检索等 NLP 技术，具备基于 BERT 完成业务问题分类和 Agent 路由的实践；能够接入 OpenAI-compatible API 及常见云端大模型服务，完成模型调用、参数配置、Prompt 调优与结果解析。</p>
+        <div class="kws"><span class="kw">BERT</span><span class="kw">意图识别</span><span class="kw">Embedding</span><span class="kw">OpenAI-compatible</span></div>
+      </article>
+
+      <article class="skill-card reveal">
+        <div class="skill-top"><div class="skill-ico">⚙️</div><h3>AI 平台与 Dify</h3></div>
+        <p>熟练使用 Dify 搭建 Agent、Workflow、知识库及 HTTP Tool，可用 LLM、Code、IF/ELSE、Iteration、变量聚合、参数提取等节点编排复杂业务流程；熟悉「模型负责理解与表达、代码负责确定性计算、业务系统负责真实状态」的边界设计，通过人工确认与能力白名单控制高风险写操作。</p>
+        <div class="kws"><span class="kw">Dify</span><span class="kw">Workflow 编排</span><span class="kw">HTTP Tool</span><span class="kw">权限白名单</span></div>
+      </article>
+
+      <article class="skill-card reveal">
+        <div class="skill-top"><div class="skill-ico">☕</div><h3>后端与微服务</h3></div>
+        <p>具备 Spring Boot、Spring Cloud Alibaba、FastAPI、MyBatis-Plus 后端开发能力，熟悉 MySQL、Redis、Elasticsearch、RabbitMQ、Nacos、OpenFeign、Gateway 等组件；熟悉 RESTful API、接口联调、认证鉴权、缓存与事务，能够使用 Linux、Docker 完成部署与日志排查，了解 Jenkins 持续集成。</p>
+        <div class="kws"><span class="kw">Spring Boot</span><span class="kw">Spring Cloud Alibaba</span><span class="kw">FastAPI</span><span class="kw">MySQL</span><span class="kw">Redis</span><span class="kw">Docker</span></div>
+      </article>
+
+      <article class="skill-card reveal">
+        <div class="skill-top"><div class="skill-ico">🛡️</div><h3>企业级 Agent 落地</h3></div>
+        <p>参与 AI 智能体平台核心模块开发，深入实践任务规划引擎、长短期记忆管理、多 Agent 协同调度；自研 Agent 可观测与自动化评测体系，结合 RAG 保障工业智能体（工艺、运维、调度、工单等场景）大规模落地时的稳定性与准确性。</p>
+        <div class="kws"><span class="kw">任务规划引擎</span><span class="kw">记忆管理</span><span class="kw">可观测</span><span class="kw">自动化评测</span></div>
+      </article>
+
+      <article class="skill-card reveal">
+        <div class="skill-top"><div class="skill-ico">🔗</div><h3>系统集成与安全</h3></div>
+        <p>负责大模型与 MES、ERP、PLM 等工业核心系统的深度集成，构建企业级 Tool / 插件标准化体系；针对工业场景对安全与严谨性的高要求，设计并落地细粒度权限网关与全链路调用审计机制，保障 Agent 在真实生产环境下的数据安全、权限隔离与可信执行。</p>
+        <div class="kws"><span class="kw">MES / ERP / PLM</span><span class="kw">权限网关</span><span class="kw">调用审计</span><span class="kw">Tool 标准化</span></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 工作经历 -->
+  <section id="experience">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Experience</div>
+      <h2>工作经历</h2>
+      <div class="sec-desc">从 Java 后端到 AI 应用研发的完整成长路径。</div>
+    </div>
+    <div class="timeline">
+      <div class="tl-item reveal">
+        <div class="tl-card">
+          <div class="tl-head">
+            <span class="tl-role">Agent 开发工程师</span>
+            <span class="tl-company">湖北朗硕科技有限公司</span>
+            <span class="tl-date">2023.03 - 至今</span>
+          </div>
+          <ul>
+            <li>负责大模型应用层研发、Prompt 工程、RAG 流程搭建与 Agent 逻辑实现，主导多个业务场景的 AI 能力从 0 到 1 落地。</li>
+            <li>负责大模型与现有 Java 业务系统的深度集成，参与后端 API 设计与开发，确保核心链路的高可用与高性能。</li>
+            <li>参与系统方案设计与性能优化，推动大模型能力产品化，持续沉淀可复用的 AI 工程化方案。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-card">
+          <div class="tl-head">
+            <span class="tl-role">Java 开发工程师（MES 方向）</span>
+            <span class="tl-company">拓浦精工智能制造（邵阳）有限公司</span>
+            <span class="tl-date">2020.08 - 2022.11</span>
+          </div>
+          <ul>
+            <li>负责部分业务需求分析、项目二次开发。</li>
+            <li>负责所分配功能模块的详细设计、功能开发、功能测试、代码优化工作。</li>
+            <li>遵循开发管理流程，编写和完善设计文档。</li>
+            <li>参与产品新模块逻辑扩充以及完成项目经理交办的其他工作。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-card">
+          <div class="tl-head">
+            <span class="tl-role">计算机应用技术</span>
+            <span class="tl-company">开封大学</span>
+            <span class="tl-date">2016.09 - 2020.07</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 项目 -->
+  <section id="projects">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Projects</div>
+      <h2>项目经验</h2>
+      <div class="sec-desc">点击任意项目卡片可展开查看技术细节。</div>
+    </div>
+    <div class="projects">
+
+      <article class="proj reveal">
+        <div class="proj-top">
+          <div class="proj-index">01</div>
+          <div class="proj-main">
+            <div class="proj-title">智造云链 · 工业采购多智能体系统 <span class="proj-sub">多智能体 · 采购供应链</span></div>
+            <div class="proj-desc">面向智能硬件供应链场景，在既有采购、订单等 Java 微服务之上构建统一自然语言业务入口（AgentCenter），业务人员可通过自然语言完成供应商寻源、采购办理、履约查询及知识问答。架构由「单 Agent + 多 Tool」演进为基于 LangGraph 的路由式多智能体架构，并引入 A2A 与 MCP 协议实现 Agent 服务化与业务能力标准化。</div>
+            <div class="stack"><span>Python</span><span>FastAPI</span><span>LangGraph</span><span>LangChain</span><span>PostgreSQL</span><span>Redis</span><span>SSE</span><span>A2A</span><span>MCP</span><span>Nacos</span><span>Gateway</span><span>RAG</span></div>
+          </div>
+          <div class="proj-toggle">▾</div>
+        </div>
+        <div class="proj-body">
+          <ul>
+            <li><b>多智能体编排与路由：</b>基于 LangGraph StateGraph 构建 Intent、Sourcing、Procurement、Tracking、Knowledge 等专业 Agent，通过 RouteState 与 Conditional Edge 实现语义意图路由；各 Agent 严格隔离职责边界，仅暴露职责范围内 Tool，有效限制大模型写操作越权。</li>
+            <li><b>状态管理与会话持久化：</b>基于 MessagesState 保存真实业务对话，使用独立 intent 字段承载内部流程控制信息；通过 AsyncPostgresSaver 按 sessionId/thread_id 持久化与恢复 State，实现跨 Agent 多轮上下文保持及 AgentCenter 多实例间会话无缝恢复。</li>
+            <li><b>Tool Calling 与流式交互：</b>将供应商、采购订单等原 Java 微服务能力封装为业务 Tool；请求级 user_token 通过运行上下文隐式传递，模型仅负责 Tool 选择与参数组织；通过 SSE 分离自然语言与结构化 Tool 结果，实现打字机效果并支持停止生成。</li>
+            <li><b>微服务治理与并发控制：</b>AgentCenter 作为 FastAPI 微服务注册至 Nacos，由 Gateway 统一完成认证、服务发现、令牌桶限流及熔断降级；基于 Redis 设计 sessionId 会话级互斥锁，避免同一用户并发请求导致上下文与业务操作错序。</li>
+            <li><b>A2A 与 MCP 架构演进：</b>将本地专业 Agent 拆分为独立 A2A Agent 服务，由中心侧统一完成远程路由及流式事件桥接；进一步将通用业务 Tool 抽取为 MCP Server，大幅降低各专业 Agent 对底层业务接口实现的重复耦合。</li>
+            <li><b>KnowledgeAgent 与 RAG 落地：</b>针对采购制度、物料规格等内部文档构建基础 RAG 链路（解析、切片、Embedding、向量 TopK 召回）；引入来源约束机制，在检索证据不足时避免生成无依据的专业事实，控制幻觉风险。</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="proj reveal">
+        <div class="proj-top">
+          <div class="proj-index">02</div>
+          <div class="proj-main">
+            <div class="proj-title">白熊保险商城（白熊保） <span class="proj-sub">AI 保险顾问 · 智能客服</span></div>
+            <div class="proj-desc">在线保险商城及 AI 智能保险顾问系统。针对保险产品复杂、条款晦涩、人工顾问成本高等痛点，基于大模型、RAG 和 Agent 技术提供选购保险、条款解释、组合方案推荐到理赔指引的全流程智能服务。前后端分离，前端 React，后端 Python FastAPI 异步框架，通过 LangGraph 编排多 Agent 路由，结合 Milvus 与 PostgreSQL 构建高精度 Agentic RAG 架构。</div>
+            <div class="stack"><span>Python</span><span>FastAPI</span><span>LangGraph</span><span>LangChain</span><span>DeepSeek</span><span>Milvus</span><span>PostgreSQL 16</span><span>MinerU</span><span>Qwen3-Embedding</span><span>SQLAlchemy 2.0</span><span>SSE</span><span>Docker Compose</span><span>React</span></div>
+          </div>
+          <div class="proj-toggle">▾</div>
+        </div>
+        <div class="proj-body">
+          <ul>
+            <li><b>多 Agent 架构与会话持久化：</b>基于 LangGraph 构建主 / 子 Graph 路由架构，实现意图识别与多业务工作流分发；结合 PostgreSQL Checkpointer 实现基于 thread_id 的会话状态持久化，确保服务重启上下文不丢失。</li>
+            <li><b>Agentic RAG 与混合检索设计：</b>将检索封装为 Tool 交由大模型自主调用，摒弃传统强制检索；针对复杂条款引入 MinerU 解析，创新「父子块切分策略」（子块入 Milvus 保精度，父块入 PostgreSQL 保完整）；基于 Milvus 2.6 实现稠密 + 稀疏混合检索与 product_id 过滤，杜绝跨产品条款混淆。</li>
+            <li><b>复杂业务链集成与越权防护：</b>打通「画像采集 → 工具查品 → 方案生成 → 入库」的保险推荐闭环；通过 LangChain Context 与 ToolRuntime 隐式注入 user_id（不暴露给大模型参数），从根本上防止大模型伪造 ID 导致的越权操作。</li>
+            <li><b>流式交互与全链路异步化：</b>基于 FastAPI 和 astream_events 封装 SSE 流式接口，实现打字机效果与断线重连，大幅降低首字延迟；配合 SQLAlchemy 2.0（asyncpg）实现全链路异步数据库访问，提升系统吞吐量。</li>
+            <li><b>容器化与基础设施搭建：</b>编写 Docker Compose 脚本统一编排 PostgreSQL、Milvus、MinIO、etcd 等复杂组件，实现一键部署，保证开发与生产环境一致性。</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="proj reveal">
+        <div class="proj-top">
+          <div class="proj-index">03</div>
+          <div class="proj-main">
+            <div class="proj-title">智能物联设备监控与运维管理平台 <span class="proj-sub">IoT · 智能运维</span></div>
+            <div class="proj-desc">面向企业 / 园区的全流程数字化运维系统，涵盖设备接入、维保服务、状态监测、安全报警与智能运维助手等核心模块。基于 FastAPI + Vue3 构建后台管理平台，对接华为云 IoT 与多 Agent 编排框架，实现设备监控、报警处置、维保问答和健康评估的智能闭环。</div>
+            <div class="stack"><span>FastAPI</span><span>Pydantic</span><span>SQLAlchemy</span><span>MySQL 8.0</span><span>Redis</span><span>RabbitMQ</span><span>aio-pika</span><span>Celery</span><span>APScheduler</span><span>LangGraph</span><span>华为云 IoT SDK</span><span>Docker</span></div>
+          </div>
+          <div class="proj-toggle">▾</div>
+        </div>
+        <div class="proj-body">
+          <ul>
+            <li><b>IoT 设备高并发接入与缓存设计：</b>基于 AMQP 协议对接华为云 IoT 平台，使用 aio-pika 实现项目启动自动监听；采用多连接消费者与 asyncio 异步任务解耦处理上报数据，避免阻塞；解析校验后批量入库，并实时更新 Redis 缓存最新设备状态，供报警模块和 Agent 工具毫秒级读取。</li>
+            <li><b>智能报警引擎独立设计：</b>基于 Celery Beat / APScheduler 与 Redis 独立设计高性能报警引擎，支持按产品全局和单设备独立配置规则（指标、阈值、生效时间段）；引入「持续周期」与「沉默周期」机制，利用 Redis 计数解决单次数据波动导致的误报和频繁骚扰问题，降低误报率。</li>
+            <li><b>复杂维保业务逻辑开发：</b>负责巡检项目、维保计划与设备等级体系开发；使用 Pydantic Schema 做 DTO/VO 分层隔离，避免实体污染；通过 SQLAlchemy 事务保证主表与中间表数据一致性，修改操作采用「先删后插」策略降低多表联动更新复杂度。</li>
+            <li><b>运维 Agent 与 AI 能力集成：</b>基于 LangGraph 搭建运维 Agent，将设备状态查询、报警规则查询、维保记录查询、健康评估等能力封装为工具；结合大模型与设备运行日志、维保记录实现智能问答、故障排查建议和设备健康状态评估，并对工具调用做鉴权、超时、重试与审计。</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="proj reveal">
+        <div class="proj-top">
+          <div class="proj-index">04</div>
+          <div class="proj-main">
+            <div class="proj-title">智选优品 —— 智能体编排中台 <span class="proj-sub">中台 · 网关安全</span></div>
+            <div class="proj-desc">面向企业 AI 能力统一接入的智能体编排中台，依托 LangGraph 多智能体路由与通义千问大模型，搭建「意图识别 → 智能路由 → 工具调用 → 流式输出」的 AI 服务闭环，解决各业务线 AI 能力重复建设、安全防护参差不齐、会话管理割裂等痛点。</div>
+            <div class="stack"><span>LangGraph</span><span>LangChain</span><span>SpringCloud Gateway</span><span>Nacos</span><span>MySQL</span><span>Redis</span><span>PostgreSQL</span><span>Milvus</span></div>
+          </div>
+          <div class="proj-toggle">▾</div>
+        </div>
+        <div class="proj-body">
+          <ul>
+            <li><b>多智能体协作架构：</b>基于 LangGraph 状态图构建六节点多智能体协作流程。IntentAgent 输出意图标签（推荐 / 交易 / 咨询 / 知识 / 未知），通过条件边动态路由到对应子智能体；四个业务智能体各司其职、按需加载独立工具集，FallbackAgent 兜底未知意图。设计 BaseNodeAgent 抽象继承体系，新增智能体只需覆写 system_prompt() + tools()；流式输出通过 Tags 过滤屏蔽内部决策节点中间输出。</li>
+            <li><b>中台网关安全防护：</b>通过 SpringCloud Gateway 搭建统一入口，实现三级全链路防护——JWT 认证鉴权（RSA 签名 + MySQL 校验）、Redis RateLimiter 令牌桶限流（每秒恢复 10 个令牌、桶容量 20，按接口路径维度限流）、Resilience4j 熔断；结合 Nacos 服务注册发现实现负载均衡，双重安全校验防止绕过网关直连。</li>
+            <li><b>工具调用与业务集成：</b>通过 LangChain Tool Calling 统一封装业务 API——产品查询和预下单工具通过 Nacos 动态发现网关实例、随机负载均衡、HTTP 调用获取真实数据；设计 SSE 三事件体系（1001 文本逐字推送 / 1002 流结束 / 1003 产品卡片数据推送）实现结构化卡片与文本分离渲染；ToolContext 透传机制解决 user_token / request_id 跨层传递。</li>
+            <li><b>向量检索增强推荐：</b>基于 Milvus 搭建产品知识向量检索库，通过 BGE-M3 / DashScope text-embedding-v4 将产品数据向量化为 1024 维稠密向量；设计强制三步流程防幻觉——信息采集（预算 / 偏好 / 使用场景三要素缺失立即追问）、匹配检索（cosine 相似度 top-3 注入提示词）、推荐执行。</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="proj reveal">
+        <div class="proj-top">
+          <div class="proj-index">05</div>
+          <div class="proj-main">
+            <div class="proj-title">寰球购 · 跨境电商平台 <span class="proj-sub">跨境 · Agent 工具链</span></div>
+            <div class="proj-desc">面向海内外用户的跨境电商平台，基于多 Agent 架构覆盖商品检索、导购客服、购物车 / 订单操作、优惠券营销、物流跟踪与报关对接等场景。Agent 通过工具调用访问业务微服务，支持多语言多币种展示与营销。</div>
+            <div class="stack"><span>FastAPI</span><span>LangGraph</span><span>LangChain</span><span>Pydantic</span><span>SQLAlchemy</span><span>Celery</span><span>RabbitMQ</span><span>MySQL</span><span>PostgreSQL</span><span>Redis</span><span>Elasticsearch（kNN）</span><span>Consul</span><span>Docker</span></div>
+          </div>
+          <div class="proj-toggle">▾</div>
+        </div>
+        <div class="proj-body">
+          <ul>
+            <li><b>商品搜索 Agent：</b>将用户自然语言查询解析为搜索意图与结构化参数，调用 Elasticsearch 搜索工具，使用 BoolQuery 实现关键词、分类、品牌、价格多维组合检索与高亮展示；结合 ES kNN 向量检索和 sentence-transformers 实现「以图搜款 / 语义搜索」，弱化多语言差异。</li>
+            <li><b>智能客服 Agent：</b>基于 LangGraph 搭建多轮对话状态机，完成意图识别、工具调用与人工兜底；对接大模型实现多语言实时翻译、售前咨询、物流查询和售后引导，通过 httpx 异步调用订单、物流、售后等业务服务。</li>
+            <li><b>购物车与订单 Agent 工具：</b>将购物车校验、下单、订单查询封装为 Agent 工具，实时校验价格库存；监听订单创建事件自动清空购物车，下单失败支持购物车恢复；工具调用增加幂等、超时和权限校验。</li>
+            <li><b>优惠券营销 Agent：</b>根据用户画像和活动规则推荐优惠券，Agent 调用领券工具完成领取；底层使用 Redis Lua 脚本原子处理高并发抢券，按活动 ID 分片分散热点，Celery 异步批量落库削峰填谷，保证不超发。</li>
+            <li><b>Agent 网关与认证：</b>基于 FastAPI 中间件实现统一 JWT 校验、路由转发和 Agent 会话上下文透传；设计用户上下文跨服务传递机制，并对 Agent 工具调用做鉴权、审计和超时重试。</li>
+          </ul>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- 自我评价 -->
+  <section id="about">
+    <div class="sec-head reveal">
+      <div class="sec-tag">About</div>
+      <h2>自我评价</h2>
+    </div>
+    <div class="about-card reveal">
+      <p>喜欢钻研技术，遇到问题习惯追到底层搞清楚原理，不满足于「会用就行」。近两年一直在做 AI 相关的项目，从调 API 到搭多智能体架构都是自己摸索出来的。平时写代码注重可维护性，习惯把一个复杂功能拆成小模块，后续迭代更省事。希望在一个重视技术的团队里继续深耕 AI 工程化方向。</p>
+      <div class="facts">
+        <span class="fact">🔧 追底层原理</span>
+        <span class="fact">🧩 模块化可维护</span>
+        <span class="fact">🚀 从 0 到 1 落地</span>
+        <span class="fact">🤝 团队协作</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 联系 -->
+  <section id="contact">
+    <div class="contact-wrap reveal">
+      <h2>期待与你聊聊</h2>
+      <div class="sub">27 岁 · 男 · 河南南阳 · 期望薪资面议 · 随时到岗</div>
+      <div class="contacts">
+        <a class="contact-item" href="tel:18211856487">
+          <div class="ico">📱</div>
+          <div class="k">手机 / 微信同号</div>
+          <div class="v">18211856487</div>
+        </a>
+        <a class="contact-item" href="mailto:m1654589987@163.com">
+          <div class="ico">✉️</div>
+          <div class="k">邮箱</div>
+          <div class="v">m1654589987@163.com</div>
+        </a>
+        <a class="contact-item" href="#projects">
+          <div class="ico">📍</div>
+          <div class="k">求职意向</div>
+          <div class="v">Agent 开发工程师</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div><span class="line">胡森</span> · Agent 开发工程师 / AI 应用开发</div>
+  <div style="margin-top:6px">© <span id="year">2026</span> · 用 LangGraph 的思维方式写的简历</div>
+</footer>
+
+<script>
+(function () {
+  // 年份
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // 导航滚动阴影
+  var header = document.getElementById('header');
+  var links = Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+
+  function onScroll() {
+    header.classList.toggle('scrolled', window.scrollY > 10);
+    var pos = window.scrollY + 140;
+    var cur = -1;
+    sections.forEach(function (s, i) {
+      if (s && s.offsetTop <= pos) cur = i;
+    });
+    links.forEach(function (a, i) { a.classList.toggle('active', i === cur); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // 滚动淡入
+  var reveals = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(function (el, i) {
+      el.style.transitionDelay = (i % 4) * 70 + 'ms';
+      io.observe(el);
+    });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  // 项目卡片展开
+  document.querySelectorAll('.proj-top').forEach(function (top) {
+    top.addEventListener('click', function () {
+      top.parentElement.classList.toggle('open');
+    });
+  });
+  // 默认展开第一个项目
+  var first = document.querySelector('.proj');
+  if (first) first.classList.add('open');
+})();
+</script>
+</body>
+</html>
